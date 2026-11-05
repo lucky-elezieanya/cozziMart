@@ -60,7 +60,7 @@ const Navbar = () => {
           <div className="h-4 w-px bg-primary-foreground/60" />
 
           <span className="flex items-center gap-2 whitespace-nowrap text-sm">
-            <Headset className="h-4 w-4" />
+            <Headset className="h-4 w-4 animate-pulse" />
             24/7 Customer Support
           </span>
         </div>
