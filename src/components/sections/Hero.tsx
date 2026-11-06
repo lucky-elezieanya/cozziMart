@@ -221,7 +221,7 @@ const Hero = () => {
             </div>
 
             {/* CAROUSEL INDICATORS */}
-            <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 sm:left-[35%] lg:left-[35%]">
+            {/* <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 sm:left-[35%] lg:left-[35%]">
               <button
                 aria-label="Slide 1"
                 className="h-3 w-3 rounded-full bg-primary"
@@ -238,7 +238,7 @@ const Hero = () => {
                 aria-label="Slide 4"
                 className="h-3 w-3 rounded-full bg-white/70 transition-colors hover:bg-white"
               />
-            </div>
+            </div> */}
           </div>
         </div>
         {/* MOBILE CATEGORY LIST */}

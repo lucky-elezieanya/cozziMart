@@ -294,3 +294,156 @@
     max-width: 100%;
   }
 }
+
+
+/* =========================================
+   COZZIMART PRODUCT CARD ANIMATIONS
+========================================= */
+
+/* Product card entrance */
+@keyframes product-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Product image hover zoom */
+@keyframes product-image-float {
+  0%, 100% {
+    transform: scale(1.04) translateY(0);
+  }
+  50% {
+    transform: scale(1.08) translateY(-3px);
+  }
+}
+
+/* Shimmer effect for add-to-cart button */
+@keyframes product-button-shine {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+/* Sale badge pulse */
+@keyframes product-badge-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgb(244 114 182 / 0%);
+  }
+  50% {
+    box-shadow: 0 0 0 5px rgb(244 114 182 / 12%);
+  }
+}
+
+/* Wishlist heart pop */
+@keyframes product-heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Product card styles */
+.product-card {
+  animation: product-card-enter 0.5s ease both;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  border-color: rgb(0 107 58 / 30%);
+  box-shadow: 0 16px 35px rgb(0 107 58 / 10%);
+}
+
+.product-card-image {
+  transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.product-card:hover .product-card-image {
+  transform: scale(1.09);
+}
+
+.product-card-overlay {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.product-card:hover .product-card-overlay {
+  opacity: 1;
+}
+
+.product-sale-badge {
+  animation: product-badge-pulse 2.5s ease-in-out infinite;
+}
+
+.product-wishlist {
+  transition:
+    color 0.25s ease,
+    background-color 0.25s ease,
+    transform 0.25s ease;
+}
+
+.product-wishlist:active {
+  animation: product-heart-pop 0.35s ease;
+}
+
+.product-cart-button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.product-cart-button::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 35%;
+  background: rgb(255 255 255 / 20%);
+  transform: translateX(-150%) skewX(-20deg);
+}
+
+.product-cart-button:hover::before {
+  animation: product-button-shine 0.8s ease;
+}
+
+.product-cart-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgb(0 107 58 / 20%);
+}
+
+.product-cart-button:active {
+  transform: scale(0.97);
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-card-image,
+  .product-card-overlay,
+  .product-sale-badge,
+  .product-wishlist,
+  .product-cart-button {
+    animation: none !important;
+    transition: none !important;
+  }
+}

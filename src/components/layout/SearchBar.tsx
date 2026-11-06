@@ -16,11 +16,164 @@ import {
   LogIn,
   Headset,
 } from 'lucide-react'
+import { useCart } from "@/components/context/CartContext";
+import Link from 'next/link'
+
+import { useRouter } from "next/navigation";
+import { products } from "@/components/sections/Products";
+
+type ProductSearchProps = {
+  query: string;
+  setQuery: (value: string) => void;
+  onSearch: () => void;
+};
+
+const ProductSearch = ({
+  query,
+  setQuery,
+  onSearch,
+}: ProductSearchProps) => {
+  const [focused, setFocused] = useState(false);
+
+  const suggestions = query.trim()
+    ? products
+        .filter((product) => {
+          const searchTerm = query.toLowerCase().trim();
+
+          return (
+            product.name.toLowerCase().includes(searchTerm) ||
+            product.category.toLowerCase().includes(searchTerm) ||
+            product.description.toLowerCase().includes(searchTerm)
+          );
+        })
+        .slice(0, 5)
+    : [];
+
+  return (
+    <div className="relative min-w-0 flex-1">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          onSearch();
+          setFocused(false);
+        }}
+        className="flex w-full items-center overflow-hidden rounded-full border border-border bg-background-secondary transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10"
+      >
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setFocused(false);
+          }}
+          placeholder="Search for products..."
+          aria-label="Search products"
+          autoComplete="off"
+          className="h-12 min-w-0 flex-1 border-0 bg-transparent px-5 font-body text-sm text-foreground outline-none placeholder:text-muted focus:ring-0"
+        />
+
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="Clear search"
+            className="px-3 text-muted transition-colors hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+
+        <button
+          type="submit"
+          aria-label="Search products"
+          className="flex h-12 w-16 shrink-0 items-center justify-center bg-primary text-primary-foreground transition-colors hover:bg-primary-dark"
+        >
+          <Search className="h-5 w-5" />
+        </button>
+      </form>
+
+      {/* Search suggestions */}
+      {focused && query.trim() && (
+        <div className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-border bg-background shadow-xl">
+          {suggestions.length > 0 ? (
+            <>
+              <p className="px-4 pb-2 pt-3 text-xs font-semibold uppercase tracking-wide text-muted">
+                Suggested products
+              </p>
+
+              {suggestions.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  onClick={() => setFocused(false)}
+                  className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-mint"
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-11 w-11 rounded-lg bg-background-secondary object-cover"
+                  />
+
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-foreground">
+                      {product.name}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {product.category}
+                    </p>
+                  </div>
+
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted" />
+                </Link>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  onSearch();
+                  setFocused(false);
+                }}
+                className="w-full border-t border-border px-4 py-3 text-left text-sm font-semibold text-primary transition-colors hover:bg-mint"
+              >
+                See all results for "{query}"
+              </button>
+            </>
+          ) : (
+            <div className="px-4 py-5">
+              <p className="text-sm font-medium text-foreground">
+                No matching products found.
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                Try another product name or category.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SearchBar = () => {
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const closeMenu = () => setMenuOpen(false)
+  const { cartCount } = useCart();
+  const router = useRouter();
+
+  const closeMenu = () => setMenuOpen(false);
+
+  const handleSearch = () => {
+    const searchTerm = searchQuery.trim();
+
+    if (!searchTerm) {
+      router.push("/products");
+      return;
+    }
+
+    router.push(`/products?search=${encodeURIComponent(searchTerm)}`);
+  };
 
   return (
     <section id="search-bar" className="w-full bg-background">
@@ -45,22 +198,13 @@ const SearchBar = () => {
           </div>
 
           {/* Search */}
-          <div className="flex min-w-0 flex-1 items-center overflow-hidden rounded-full border border-border bg-background-secondary transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-
-            <input
-              type="text"
-              placeholder="Search for products..."
-              className="h-12 min-w-0 flex-1 border-0 bg-transparent px-5 font-body text-sm text-foreground outline-none placeholder:text-muted focus:ring-0"
-            />
-
-            <button
-              type="button"
-              aria-label="Search products"
-              className="flex h-12 w-16 shrink-0 items-center justify-center bg-primary text-primary-foreground transition-colors hover:bg-primary-dark"
-            >
-              <Search className="h-5 w-5" />
-            </button>
-          </div>
+        <div className="flex min-w-0 flex-1">
+          <ProductSearch
+            query={searchQuery}
+            setQuery={setSearchQuery}
+            onSearch={handleSearch}
+          />
+        </div>
 
           {/* Actions */}
           <div className="flex shrink-0 items-center gap-5">
@@ -76,16 +220,20 @@ const SearchBar = () => {
               </span>
             </button>
 
-            <button
-              type="button"
-              aria-label="Shopping cart"
+            {/* cart */}
+              <Link
+              href="/cart"
+              aria-label={`Shopping cart with ${cartCount} items`}
               className="relative text-primary transition-colors hover:text-secondary"
             >
               <ShoppingCart className="h-6 w-6" />
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground">
-                0
-              </span>
-            </button>
+
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-bold text-secondary-foreground">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </Link>
 
             <button
               type="button"
@@ -150,38 +298,31 @@ const SearchBar = () => {
                 5
               </span>
             </button>
+            {/* Cart */}
+          <Link
+            href="/cart"
+            aria-label={`Shopping cart with ${cartCount} items`}
+            className="relative text-primary"
+          >
+            <ShoppingCart className="h-6 w-6" />
 
-            <button
-              type="button"
-              aria-label="Shopping cart"
-              className="relative text-primary"
-            >
-              <ShoppingCart className="h-6 w-6" />
-
-              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[10px] font-bold text-secondary-foreground">
-                10
+            {cartCount > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-bold text-secondary-foreground">
+                {cartCount > 99 ? "99+" : cartCount}
               </span>
-            </button>
+            )}
+          </Link>
           </div>
         </div>
 
         {/* Mobile Search */}
-        <div className="mt-4 flex w-full items-center overflow-hidden rounded-full border border-border bg-background-secondary focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
-
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="h-11 min-w-0 flex-1 border-0 bg-transparent px-4 text-sm text-foreground outline-none placeholder:text-muted focus:ring-0"
-          />
-
-          <button
-            type="button"
-            aria-label="Search products"
-            className="flex h-11 w-12 shrink-0 items-center justify-center bg-primary text-primary-foreground hover:bg-primary-dark"
-          >
-            <Search className="h-5 w-5" />
-          </button>
-        </div>
+        <div className="mt-4 w-full">
+        <ProductSearch
+          query={searchQuery}
+          setQuery={setSearchQuery}
+          onSearch={handleSearch}
+        />
+      </div>
 
 
         {/* ==================================================

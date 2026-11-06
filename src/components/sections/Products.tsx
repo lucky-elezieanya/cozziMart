@@ -1,9 +1,365 @@
-import React from 'react'
 
-const Products = () => {
+"use client";
+
+import Link from "next/link";
+import {
+  ArrowUpRight,
+  Search,
+} from "lucide-react";
+import { ProductCard } from "../products/ProductCard";
+
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  oldPrice?: number;
+  rating: number;
+  reviews: number;
+  image: string;
+  badge?: string;
+  badgeType?: "sale" | "new" | "popular";
+};
+
+
+export const products: Product[] = [
+  {
+    id: 1,
+    name: "Wireless Bluetooth Headphones",
+    description: "Enjoy rich, immersive sound with comfortable wireless headphones designed for everyday listening.",
+    category: "Electronics",
+    price: 28500,
+    oldPrice: 35000,
+    rating: 4.8,
+    reviews: 124,
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=85",
+    badge: "20% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 2,
+    name: "Premium Smart Watch",
+    description: "Stay connected and keep track of your daily activities with this stylish smart watch.",
+    category: "Electronics",
+    price: 42000,
+    oldPrice: 50000,
+    rating: 4.7,
+    reviews: 89,
+    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=85",
+    badge: "Popular",
+    badgeType: "popular",
+  },
+  {
+    id: 3,
+    name: "Classic White Sneakers",
+    description: "A versatile pair of comfortable white sneakers that complements casual and everyday outfits.",
+    category: "Fashion",
+    price: 32000,
+    oldPrice: 38000,
+    rating: 4.6,
+    reviews: 76,
+    image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=700&q=85",
+    badge: "16% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 4,
+    name: "Minimalist Leather Handbag",
+    description: "Complete your look with an elegant handbag featuring a timeless minimalist design.",
+    category: "Fashion",
+    price: 45000,
+    rating: 4.9,
+    reviews: 53,
+    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=85",
+    badge: "New",
+    badgeType: "new",
+  },
+  {
+    id: 5,
+    name: "Modern Wireless Mouse",
+    description: "Enjoy smooth navigation and convenient wireless control for work, study, and everyday computing.",
+    category: "Electronics",
+    price: 12500,
+    oldPrice: 15000,
+    rating: 4.5,
+    reviews: 92,
+    image: "https://images.unsplash.com/photo-1527814050087-3793815479db?auto=format&fit=crop&w=700&q=85",
+    badge: "17% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 6,
+    name: "Luxury Skin Care Set",
+    description: "A thoughtfully selected skincare collection to support your daily beauty and self-care routine.",
+    category: "Beauty & Health",
+    price: 18500,
+    rating: 4.8,
+    reviews: 67,
+    image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=700&q=85",
+    badge: "New",
+    badgeType: "new",
+  },
+  {
+    id: 7,
+    name: "Portable Bluetooth Speaker",
+    description: "Take your music anywhere with a compact wireless speaker designed for convenient listening.",
+    category: "Electronics",
+    price: 22000,
+    oldPrice: 27000,
+    rating: 4.6,
+    reviews: 112,
+    image: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=700&q=85",
+    badge: "19% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 8,
+    name: "Elegant Wrist Watch",
+    description: "Add a refined touch to your everyday style with this elegant and versatile wrist watch.",
+    category: "Fashion",
+    price: 38000,
+    rating: 4.7,
+    reviews: 45,
+    image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    id: 9,
+    name: "Modern Table Lamp",
+    description: "Brighten your living space with a modern table lamp that combines style and functionality.",
+    category: "Home & Living",
+    price: 19500,
+    oldPrice: 24000,
+    rating: 4.5,
+    reviews: 38,
+    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=700&q=85",
+    badge: "19% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 10,
+    name: "Premium Leather Backpack",
+    description: "Carry your essentials comfortably in a stylish backpack suitable for work, school, and travel.",
+    category: "Fashion",
+    price: 35000,
+    rating: 4.8,
+    reviews: 61,
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=700&q=85",
+    badge: "Popular",
+    badgeType: "popular",
+  },
+  {
+    id: 11,
+    name: "Professional Digital Camera",
+    description: "Capture memorable moments with a versatile digital camera designed for quality photography.",
+    category: "Electronics",
+    price: 185000,
+    oldPrice: 210000,
+    rating: 4.9,
+    reviews: 34,
+    image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=700&q=85",
+    badge: "12% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 12,
+    name: "Ceramic Flower Vase",
+    description: "Give your interior a decorative touch with this elegant ceramic vase for flowers and displays.",
+    category: "Home & Living",
+    price: 14500,
+    rating: 4.6,
+    reviews: 29,
+    image: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=700&q=85",
+    badge: "New",
+    badgeType: "new",
+  },
+  {
+    id: 13,
+    name: "Men's Casual T-Shirt",
+    description: "A comfortable everyday T-shirt that pairs effortlessly with jeans, shorts, and casual outfits.",
+    category: "Fashion",
+    price: 9500,
+    oldPrice: 12000,
+    rating: 4.4,
+    reviews: 81,
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=700&q=85",
+    badge: "21% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 14,
+    name: "Fitness Training Dumbbells",
+    description: "Support your home workouts with practical dumbbells for strength and resistance training.",
+    category: "Sports & Fitness",
+    price: 27000,
+    rating: 4.7,
+    reviews: 42,
+    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    id: 15,
+    name: "Modern Gaming Controller",
+    description: "Enjoy responsive controls and a comfortable gaming experience with this modern controller.",
+    category: "Electronics",
+    price: 29500,
+    oldPrice: 34000,
+    rating: 4.8,
+    reviews: 106,
+    image: "https://images.unsplash.com/photo-1592840496694-26d035b52b48?auto=format&fit=crop&w=700&q=85",
+    badge: "13% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 16,
+    name: "Skincare Moisturizer",
+    description: "Keep your skincare routine simple with a daily moisturizer for soft, hydrated-looking skin.",
+    category: "Beauty & Health",
+    price: 11500,
+    rating: 4.5,
+    reviews: 58,
+    image: "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    id: 17,
+    name: "Stylish Indoor Plant",
+    description: "Bring a refreshing natural touch to your home or workspace with this decorative indoor plant.",
+    category: "Home & Living",
+    price: 8500,
+    rating: 4.6,
+    reviews: 31,
+    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=700&q=85",
+    badge: "New",
+    badgeType: "new",
+  },
+  {
+    id: 18,
+    name: "Sports Running Shoes",
+    description: "Stay comfortable during workouts and daily activities with these sporty running shoes.",
+    category: "Sports & Fitness",
+    price: 39500,
+    oldPrice: 46000,
+    rating: 4.8,
+    reviews: 73,
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=85",
+    badge: "14% OFF",
+    badgeType: "sale",
+  },
+  {
+    id: 19,
+    name: "Classic Sunglasses",
+    description: "Complete your outfit with timeless sunglasses designed for a stylish everyday look.",
+    category: "Fashion",
+    price: 15500,
+    rating: 4.5,
+    reviews: 49,
+    image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=700&q=85",
+  },
+  {
+    id: 20,
+    name: "Decorative Home Cushion",
+    description: "Add comfort, colour, and personality to your sofa or bedroom with this decorative cushion.",
+    category: "Home & Living",
+    price: 7500,
+    oldPrice: 9500,
+    rating: 4.4,
+    reviews: 26,
+    image: "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=700&q=85",
+    badge: "21% OFF",
+    badgeType: "sale",
+  },
+];
+
+
+type ProductsProps = {
+  title?: string;
+  subtitle?: string;
+  eyebrow?: string;
+  searchTerm?: string;
+};
+
+const Products = ({
+  title = "Featured Products",
+  subtitle = "Discover quality products at amazing prices.",
+  eyebrow = "Handpicked for you",
+  searchTerm = "",
+}: ProductsProps) => {
+  const filteredProducts = products.filter((product) => {
+    const term = searchTerm.toLowerCase().trim();
+
+    if (!term) return true;
+
+    return (
+      product.name.toLowerCase().includes(term) ||
+      product.category.toLowerCase().includes(term) ||
+      product.description.toLowerCase().includes(term)
+    );
+  });
+
+
   return (
-    <div>Products</div>
-  )
-}
+    <section id="products" className="w-full px-4 py-8 sm:px-8 lg:px-8">
+      <div className="container mx-auto">
+        {/* Section Header */}
+        <div className="mb-6 flex items-end justify-between gap-3">
+          <div>
+            <p className="mb-1 text-xs font-bold uppercase tracking-[0.18em] text-secondary">
+            {eyebrow}
+            </p>
+            <h2 className="font-heading text-xl font-extrabold text-primary sm:text-2xl lg:text-3xl">
+              {title}
+            </h2>
+            <p className="mt-1 text-xs text-muted sm:text-sm">
+              {subtitle}
+            </p>
+          </div>
 
-export default Products
+          <Link
+            href="/products"
+            className="group inline-flex shrink-0 items-center gap-1 text-xs font-bold text-primary transition-colors hover:text-secondary sm:text-sm"
+          >
+            View All
+            <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+        {/* Empty state */}
+        {filteredProducts.length === 0 && (
+        <div className="col-span-full py-16 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-mint">
+            <Search className="h-7 w-7 text-primary" />
+          </div>
+
+          <h3 className="font-heading text-lg font-semibold text-foreground">
+            No products found
+          </h3>
+
+          <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
+            We couldn't find any products matching "{searchTerm}". Try a different
+            search term.
+          </p>
+
+          <Link
+            href="/products"
+            className="mt-5 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+          >
+            View all products
+          </Link>
+        </div>
+      )}
+
+        {/* Products Grid */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+          {filteredProducts.map((product, index) => (
+            <div
+              key={product.id}
+              style={{ animationDelay: `${index * 45}ms` }}
+            >
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Products;
