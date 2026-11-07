@@ -20,7 +20,7 @@ import { useCart } from "@/components/context/CartContext";
 import Link from 'next/link'
 
 import { useRouter } from "next/navigation";
-import { products } from "@/components/sections/Products";
+import { products } from "@/data/products";
 
 type ProductSearchProps = {
   query: string;
