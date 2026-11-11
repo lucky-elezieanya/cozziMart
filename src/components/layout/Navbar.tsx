@@ -43,7 +43,7 @@ const Navbar = () => {
   };
 
   return (
-    <section id="navbar" className="w-full shadow-md">
+    <section id="navbar" className="w-full relative fixed shadow-md">
       {/* Top Bar */}
       <div className="hidden md:flex w-full items-center justify-between bg-primary px-6 py-2">
         <div className="flex items-center gap-4 text-primary-foreground">

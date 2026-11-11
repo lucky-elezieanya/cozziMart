@@ -176,7 +176,7 @@ const SearchBar = () => {
   };
 
   return (
-    <section id="search-bar" className="w-full bg-background">
+    <section id="search-bar" className="w-full fixed relative bg-background">
 
       {/* ==================================================
           DESKTOP VERSION

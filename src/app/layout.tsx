@@ -26,12 +26,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="relative min-h-full flex flex-col">
         <CartProvider>
-          
+          <div className="w-full relative fixed">
         <Navbar />
+          </div>
+            <div className="body  w-full relative">
         {children}
+
+            </div>
+            <div className="w-full">
+      
         <Footer />
+            </div>
         </CartProvider>
       </body>
     </html>
