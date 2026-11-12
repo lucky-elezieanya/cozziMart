@@ -3314,6 +3314,16 @@
                   "kind": "scalar"
                 }
               },
+              "lastActivityAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
               "token": {
                 "nullable": false,
                 "type": {
@@ -3357,6 +3367,9 @@
                 },
                 "id": {
                   "column": "id"
+                },
+                "lastActivityAt": {
+                  "column": "lastActivityAt"
                 },
                 "token": {
                   "column": "token"
@@ -6519,6 +6532,18 @@
                   "dataType": "pg/uuid",
                   "nullable": false
                 },
+                "lastActivityAt": {
+                  "codecId": "pg/timestamptz-date@1",
+                  "dataType": "pg/timestamptz",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
                 "token": {
                   "codecId": "pg/text@1",
                   "dataType": "pg/text",
@@ -7117,7 +7142,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "93b3f1b3807c07b699a1571ec5916173cc889bd46fc167077e9f0658b419fd27"
+    "storageHash": "3d13ed962a152e0fbbe9768a10e306253b1118f41615424c8de23e4b83c346e6"
   },
   "execution": {
     "executionHash": "8a03ad99cdce9f1d0be60801a9d2f76a01452ab6e120d548d52f26504b54cb4b",

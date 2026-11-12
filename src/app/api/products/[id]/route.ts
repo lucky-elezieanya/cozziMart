@@ -1,12 +1,12 @@
 import { NextRequest } from "next/server";
 import { db } from "@/prisma/db";
-import { ProductStatus } from "../route";
 import {
   successResponse,
   errorResponse,
   isObject,
   isProductStatus,
   requireAdmin,
+  ProductStatus,
 } from "../_utils";
 
 interface UpdateProductInput {
@@ -105,35 +105,40 @@ export async function PUT(
       if (!brand) return errorResponse("Selected brand does not exist or is inactive.", 404);
     }
 
-    const updatedProduct = await db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
       if (uniqueCategoryIds !== undefined) {
+        // Clear existing product category links using proper where clause criteria
         const existingRelations = await tx.orm.public.ProductCategory.where({ productId: id }).all();
         for (const rel of existingRelations) {
-          await tx.orm.public.ProductCategory.delete(rel.productId);
+          // Pass the unique composite or id selector object to delete
+          await tx.orm.public.ProductCategory.where({ productId: id, categoryId: rel.categoryId }).delete();
         }
         for (const catId of uniqueCategoryIds) {
           await tx.orm.public.ProductCategory.create({ productId: id, categoryId: catId });
         }
       }
 
-      return tx.orm.public.Product
-        .include("brand")
-        .include("images")
-        .include("variants")
-        .include("categories", (c) => c.include("category"))
-        .update(id, {
-          ...(normalizedName && { name: normalizedName }),
-          ...(normalizedSlug && { slug: normalizedSlug }),
-          ...(updates.description !== undefined && { description: updates.description.trim() }),
-          ...(updates.shortDescription !== undefined && { shortDescription: updates.shortDescription?.trim() || null }),
-          ...(updates.brandId !== undefined && { brandId: updates.brandId }),
-          ...(updates.status !== undefined && { status: updates.status }),
-          ...(updates.isFeatured !== undefined && { isFeatured: updates.isFeatured }),
-          ...(updates.isPublished !== undefined && { isPublished: updates.isPublished }),
-          ...(updates.metaTitle !== undefined && { metaTitle: updates.metaTitle?.trim() || null }),
-          ...(updates.metaDescription !== undefined && { metaDescription: updates.metaDescription?.trim() || null }),
-        });
+      await tx.orm.public.Product.where({ id }).update({
+        ...(normalizedName && { name: normalizedName }),
+        ...(normalizedSlug && { slug: normalizedSlug }),
+        ...(updates.description !== undefined && { description: updates.description.trim() }),
+        ...(updates.shortDescription !== undefined && { shortDescription: updates.shortDescription?.trim() || null }),
+        ...(updates.brandId !== undefined && { brandId: updates.brandId }),
+        ...(updates.status !== undefined && { status: updates.status }),
+        ...(updates.isFeatured !== undefined && { isFeatured: updates.isFeatured }),
+        ...(updates.isPublished !== undefined && { isPublished: updates.isPublished }),
+        ...(updates.metaTitle !== undefined && { metaTitle: updates.metaTitle?.trim() || null }),
+        ...(updates.metaDescription !== undefined && { metaDescription: updates.metaDescription?.trim() || null }),
+      });
     });
+
+    const updatedProduct = await db.orm.public.Product
+      .where({ id })
+      .include("brand")
+      .include("images")
+      .include("variants")
+      .include("categories", (c) => c.include("category"))
+      .first();
 
     return successResponse({ message: "Product updated successfully.", product: updatedProduct });
   } catch (error: unknown) {
@@ -159,21 +164,23 @@ export async function DELETE(
     const orderItemsCount = await db.orm.public.OrderItem.where({ productId: id }).aggregate((agg) => ({ total: agg.count() }));
 
     if (orderItemsCount.total > 0) {
-      const archivedProduct = await db.orm.public.Product.update(id, { status: "ARCHIVED", isPublished: false, isFeatured: false });
+      const archivedProduct = await db.orm.public.Product.where({ id }).update({ status: "ARCHIVED", isPublished: false, isFeatured: false });
       return successResponse({ message: "Product has orders tied to it; successfully archived instead.", product: archivedProduct });
     }
 
     await db.transaction(async (tx) => {
       const variants = await tx.orm.public.ProductVariant.where({ productId: id }).all();
-      for (const v of variants) await tx.orm.public.ProductVariant.delete(v.id);
+      for (const v of variants) await tx.orm.public.ProductVariant.where({ id: v.id }).delete();
 
       const images = await tx.orm.public.ProductImage.where({ productId: id }).all();
-      for (const img of images) await tx.orm.public.ProductImage.delete(img.id);
+      for (const img of images) await tx.orm.public.ProductImage.where({ id: img.id }).delete();
 
       const categories = await tx.orm.public.ProductCategory.where({ productId: id }).all();
-      for (const cat of categories) await tx.orm.public.ProductCategory.delete(cat.productId);
+      for (const cat of categories) {
+        await tx.orm.public.ProductCategory.where({ productId: cat.productId, categoryId: cat.categoryId }).delete();
+      }
 
-      await tx.orm.public.Product.delete(id);
+      await tx.orm.public.Product.where({ id }).delete();
     });
 
     return successResponse({ message: "Product deleted successfully." });

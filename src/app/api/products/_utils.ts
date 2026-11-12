@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/prisma/db";
+import { requireAdmin as requireAdminUser } from "@/lib/auth-helpers";
 
 export const DEFAULT_PAGE_SIZE = 12;
 export const MAX_PAGE_SIZE = 50;
@@ -52,31 +52,6 @@ export function normalizeMoney(value: number | string): string {
   return String(value).trim();
 }
 
-export async function requireAdmin(request: NextRequest) {
-  const authorization = request.headers.get("authorization");
-
-  if (!authorization?.startsWith("Bearer ")) {
-    return { authorized: false as const, response: errorResponse("Authentication required.", 401) };
-  }
-
-  const token = authorization.slice(7).trim();
-  if (!token) {
-    return { authorized: false as const, response: errorResponse("Invalid authentication token.", 401) };
-  }
-
-  const session = await db.orm.public.Session.include("user").where({ token }).first();
-
-  if (!session || session.expiresAt <= new Date()) {
-    return { authorized: false as const, response: errorResponse("Your session is invalid or has expired.", 401) };
-  }
-
-  if (!session.user.isActive) {
-    return { authorized: false as const, response: errorResponse("Your account has been deactivated.", 403) };
-  }
-
-  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
-    return { authorized: false as const, response: errorResponse("You do not have permission to manage products.", 403) };
-  }
-
-  return { authorized: true as const, user: session.user };
+export async function requireAdmin(_request: NextRequest) {
+  return requireAdminUser();
 }

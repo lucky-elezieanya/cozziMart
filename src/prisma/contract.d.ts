@@ -23,7 +23,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'93b3f1b3807c07b699a1571ec5916173cc889bd46fc167077e9f0658b419fd27'>;
+  StorageHashBase<'3d13ed962a152e0fbbe9768a10e306253b1118f41615424c8de23e4b83c346e6'>;
 export type ExecutionHash =
   ExecutionHashBase<'8a03ad99cdce9f1d0be60801a9d2f76a01452ab6e120d548d52f26504b54cb4b'>;
 export type ProfileHash =
@@ -828,6 +828,7 @@ export namespace Models {
     createdAt: FieldOutputTypes['public']['Session']['createdAt'];
     expiresAt: FieldOutputTypes['public']['Session']['expiresAt'];
     id: FieldOutputTypes['public']['Session']['id'];
+    lastActivityAt: FieldOutputTypes['public']['Session']['lastActivityAt'];
     token: FieldOutputTypes['public']['Session']['token'];
     userId: FieldOutputTypes['public']['Session']['userId'];
     user: public_User;
@@ -2940,6 +2941,14 @@ type ContractBase = Omit<
                   readonly dataType: 'pg/uuid';
                   readonly codecId: 'pg/uuid@1';
                   readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly lastActivityAt: {
+                  readonly dataType: 'pg/timestamptz';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
                   readonly many: false;
                 };
                 readonly token: {
@@ -5315,6 +5324,14 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/uuid@1' };
               };
+              readonly lastActivityAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-date@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
               readonly token: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -5342,6 +5359,7 @@ type ContractBase = Omit<
                 readonly createdAt: { readonly column: 'createdAt' };
                 readonly expiresAt: { readonly column: 'expiresAt' };
                 readonly id: { readonly column: 'id' };
+                readonly lastActivityAt: { readonly column: 'lastActivityAt' };
                 readonly token: { readonly column: 'token' };
                 readonly userId: { readonly column: 'userId' };
               };

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "column.public.Session.lastActivityAt",
+    "label": "Add column \"lastActivityAt\" to \"Session\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "lastActivityAt",
+        "table": "Session"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"lastActivityAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Session",
+          "lastActivityAt"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"lastActivityAt\" on \"Session\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"lastActivityAt\"",
+        "sql": "ALTER TABLE \"public\".\"Session\" ADD COLUMN \"lastActivityAt\" timestamptz(3) DEFAULT (now()) NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"lastActivityAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Session",
+          "lastActivityAt"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"lastActivityAt\" on \"Session\""
+        }
+      },
+      {
+        "description": "verify column \"lastActivityAt\" has type \"timestamp(3) with time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Session",
+          "lastActivityAt",
+          "timestamp(3) with time zone"
+        ]
+      },
+      {
+        "description": "verify column \"lastActivityAt\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "Session",
+          "lastActivityAt",
+          "NO"
+        ]
+      }
+    ]
+  }
+]

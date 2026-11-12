@@ -14,8 +14,6 @@ import {
   requireAdmin,
 } from "./_utils";
 
-// export const dynamic = "force-dynamic";
-
 export interface CreateProductInput {
   name: string;
   slug: string;
@@ -179,8 +177,8 @@ export async function GET(request: NextRequest) {
       .include("images", (images) => images.orderBy((image) => image.position.asc()))
       .include("variants", (variants) => variants.where({ isActive: true }))
       .include("categories", (categories) => categories.include("category"))
-      .take(limit)
-      .skip(skip)
+      .limit(limit)
+      .offset(skip)
       .all();
 
     return successResponse({
@@ -276,7 +274,7 @@ export async function POST(request: NextRequest) {
           isPublished: isPublished ?? false,
           metaTitle: metaTitle?.trim() || null,
           metaDescription: metaDescription?.trim() || null,
-          categories: (cats) => cats.create(uniqueCategoryIds.map((cid) => ({ category: (cat) => cat.connect({ id: cid }) }))),
+          categories: (cats) => cats.create(uniqueCategoryIds.map((cid) => ({ category: (cat: any) => cat.connect({ id: cid }) }))),
           images: (imgs) => imgs.create(images.map((img, idx) => ({
             url: img.url.trim(),
             altText: img.altText?.trim() || normalizedName,
