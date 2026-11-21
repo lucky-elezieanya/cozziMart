@@ -1,11 +1,10 @@
 
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { getCurrentSession } from "@/lib/auth-session";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
 export async function GET() {
+  await connection()
   try {
     const current = await getCurrentSession();
 

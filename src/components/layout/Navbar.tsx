@@ -1,8 +1,9 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import SearchBar from "./SearchBar";
 import {
   ChevronDown,
@@ -10,7 +11,11 @@ import {
   MapPin,
   Menu,
   X,
+  UserRound,
+  LogOut,
+  Loader2,
 } from "lucide-react";
+
 
 const navLinks = [
   { name: "Home", href: "/" },
@@ -37,13 +42,85 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileCategoriesOpen, setMobileCategoriesOpen] = useState(false);
 
+const router = useRouter();
+
+const [authUser, setAuthUser] = useState<{
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: "CUSTOMER" | "ADMIN" | "SUPER_ADMIN";
+} | null>(null);
+
+const [authLoading, setAuthLoading] = useState(true);
+const [loggingOut, setLoggingOut] = useState(false);
+
+useEffect(() => {
+  let active = true;
+
+  async function checkAuth() {
+    try {
+      const response = await fetch("/api/auth/me", {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+
+      if (!response.ok) {
+        if (active) setAuthUser(null);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (active) {
+        setAuthUser(data.user ?? null);
+      }
+    } catch {
+      if (active) setAuthUser(null);
+    } finally {
+      if (active) setAuthLoading(false);
+    }
+  }
+
+  checkAuth();
+
+  return () => {
+    active = false;
+  };
+}, []);
+
+async function handleLogout() {
+  setLoggingOut(true);
+
+  try {
+    const response = await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+
+    if (!response.ok) {
+      throw new Error("Logout failed");
+    }
+
+    setAuthUser(null);
+    closeMobileMenu();
+    router.push("/");
+    router.refresh();
+  } catch {
+    console.error("Unable to log out. Please try again.");
+  } finally {
+    setLoggingOut(false);
+  }
+}
+
+
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
     setMobileCategoriesOpen(false);
   };
 
   return (
-    <section id="navbar" className="w-full relative fixed shadow-md">
+    <section id="navbar" className="w-full relative shadow-md">
       {/* Top Bar */}
       <div className="hidden md:flex w-full items-center justify-between bg-primary px-6 py-2">
         <div className="flex items-center gap-4 text-primary-foreground">
@@ -78,9 +155,48 @@ const Navbar = () => {
 
           <div className="h-4 w-px bg-primary-foreground/60" />
 
-          <Link href="/login" className="text-sm hover:text-secondary">
-            Login / Register
+ 
+          {authLoading ? (
+            <span className="text-sm text-primary-foreground/70">
+              Loading account...
+            </span>
+          ) : authUser ? (
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-2 text-sm text-primary-foreground">
+                <UserRound className="h-4 w-4" />
+                Hi, {authUser.firstName}
+              </span>
+
+        {(authUser.role === "ADMIN" ||
+          authUser.role === "SUPER_ADMIN") && (
+          <Link
+            href="/admin"
+            className="text-sm hover:text-secondary"
+          >
+            Admin Dashboard
           </Link>
+        )}
+
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="flex items-center gap-2 text-sm hover:text-secondary disabled:opacity-60"
+        >
+          {loggingOut ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <LogOut className="h-4 w-4" />
+          )}
+          Logout
+        </button>
+      </div>
+    ) : (
+      <Link href="/login" className="text-sm hover:text-secondary">
+        Login / Register
+      </Link>
+    )}
+
         </div>
       </div>
 
@@ -259,6 +375,39 @@ const Navbar = () => {
                   Help & Customer Support
                 </Link>
 
+     
+              {authLoading ? (
+                <span className="text-sm text-primary-foreground/70">
+                  Loading account...
+                </span>
+              ) : authUser ? (
+                <div className="flex flex-col gap-3">
+                  <span className="text-sm font-medium text-primary-foreground">
+                    Welcome, {authUser.firstName}
+                  </span>
+
+                  {(authUser.role === "ADMIN" ||
+                    authUser.role === "SUPER_ADMIN") && (
+                    <Link
+                      href="/admin"
+                      onClick={closeMobileMenu}
+                      className="text-sm text-primary-foreground hover:text-secondary"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                    className="flex items-center gap-2 text-left text-sm text-primary-foreground hover:text-secondary disabled:opacity-60"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {loggingOut ? "Logging out..." : "Logout"}
+                  </button>
+                </div>
+              ) : (
                 <Link
                   href="/login"
                   onClick={closeMobileMenu}
@@ -266,6 +415,8 @@ const Navbar = () => {
                 >
                   Login / Register
                 </Link>
+              )}
+
               </div>
             </div>
           </div>

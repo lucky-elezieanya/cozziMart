@@ -2,7 +2,6 @@
 import { NextResponse } from "next/server";
 import { destroyDatabaseSession } from "@/lib/auth-session";
 
-export const runtime = "nodejs";
 
 export async function POST() {
   try {

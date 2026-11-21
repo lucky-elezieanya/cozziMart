@@ -4,8 +4,6 @@ import { db } from "@/prisma/db";
 import { hashPassword } from "@/lib/password";
 import { createDatabaseSession } from "@/lib/auth-session";
 
-export const runtime = "nodejs";
-
 function errorResponse(message: string, status = 400) {
   return NextResponse.json(
     { error: message },

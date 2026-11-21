@@ -4,7 +4,6 @@ import { db } from "@/prisma/db";
 import { requireAuth } from "@/lib/auth-helpers";
 import { hashPassword, verifyPassword } from "@/lib/password";
 
-export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
